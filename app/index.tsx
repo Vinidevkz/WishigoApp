@@ -36,7 +36,7 @@ export default function Index() {
 
 
   if (!fontsLoaded) {
-    return <ActivityIndicator size={"large"} color={"#0cc0df"} />;
+    return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}><ActivityIndicator size={"large"} color={"#0cc0df"} /></View>
   }
   return (
     <View style={s.mainContainer}>
