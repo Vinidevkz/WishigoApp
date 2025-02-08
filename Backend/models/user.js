@@ -13,10 +13,6 @@ const UserSchema = new mongoose.Schema({
         type: String,
         require: true
     },
-    bio: {
-        type: String,
-        require: true
-    },
     age: {
         type: Number,
         require: true

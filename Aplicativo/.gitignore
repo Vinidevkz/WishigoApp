@@ -1,6 +1,10 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
+#documentation
 about.txt
+
+#api
+src/services/api.ts
 
 # dependencies
 node_modules/

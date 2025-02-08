@@ -10,12 +10,16 @@ import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Checkbox } from "react-native-paper";
 
+//styles
 import { s } from "../../src/utils/styles/styles";
 import { AntDesign, FontAwesome5, Octicons } from "@expo/vector-icons";
 
 //components
 import Navbar from "../../src/components/navbar";
 import Button from "../../src/components/button";
+
+//context
+import { useUser } from "../../src/contexts/context";
 
 const Tasks = [
   {
@@ -83,18 +87,18 @@ const todayRoutine = [
   },
 ];
 
-
-
 export default function HomePage() {
 
   const [checked, setChecked] = useState(false);
+  const {user} = useUser()
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Navbar
         icon1="menu"
         iconLibName1="Entypo"
-        title="Seja Bem-vindo(a), Vinicius"
+        title="Seja Bem-Vindo(a), "
+        userName={user?.name}
       />
       <ScrollView
         style={{

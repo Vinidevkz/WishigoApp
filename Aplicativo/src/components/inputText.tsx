@@ -21,6 +21,7 @@ interface InputProps {
   password?: boolean;
   iconVisible?: "eye-outline";
   iconLibVisible?: "MaterialCommunityIcons";
+  onChangeText?: (text: string) => void,
   onPress?: () => void;
 }
 
@@ -37,6 +38,7 @@ const InputText: React.FC<InputProps> = ({
   password = false,
   iconVisible = "eye-outline",
   iconLibVisible,
+  onChangeText
 }) => {
   const IconComponent = iconLibName ? iconLibraries[iconLibName] : null;
   const IconVisibleComponent = iconLibVisible
@@ -55,6 +57,7 @@ const InputText: React.FC<InputProps> = ({
         secureTextEntry={password && !isVisible}
         style={s.input}
         placeholder={placeholder}
+        onChangeText={onChangeText}
       />
       {password && IconVisibleComponent && (
         <TouchableOpacity onPress={() => setIsVisible(!isVisible)}>

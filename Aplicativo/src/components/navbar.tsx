@@ -16,9 +16,10 @@ interface NavBarProps{
     icon2?: string;
     iconLibName2?: "Feather" | "FontAwesome5" | "Entypo",
     title?: string;
+    userName?: string
 }
 
-const NavBar: React.FC<NavBarProps> = ({icon1, icon2, iconLibName1, iconLibName2,  title, }) => {
+const NavBar: React.FC<NavBarProps> = ({icon1, icon2, iconLibName1, iconLibName2,  title, userName }) => {
 
     const IconComponent1 = iconLibName1 ? iconLibraries[iconLibName1] : null
     const IconComponent2 = iconLibName2 ? iconLibraries[iconLibName2] : null
@@ -32,8 +33,9 @@ const NavBar: React.FC<NavBarProps> = ({icon1, icon2, iconLibName1, iconLibName2
                     </TouchableOpacity>
             )}
 
-            <View style={{}}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text style={[s.subtitle, {fontSize: 18}]} numberOfLines={1}>{title}</Text>
+                <Text style={[s.subtitle, {fontSize: 18}]} numberOfLines={1}>{userName}</Text>
             </View>
             {IconComponent2 && icon2 && (
                     <TouchableOpacity>
