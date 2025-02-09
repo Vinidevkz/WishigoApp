@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Image,
   StatusBar,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import {
@@ -39,6 +40,8 @@ export default function Index() {
   });
   const router = useRouter();
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const [ email, setEmail ] = useState(String);
   const [ password, setPassword ] = useState(String);
   const { setUser } = useUser()
@@ -58,8 +61,6 @@ export default function Index() {
         body: requestBody,
       });
 
-      
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
@@ -67,21 +68,25 @@ export default function Index() {
             "Erro ao fazer Login, Verifique seus dados e tente novamente."
         );
       }
-
+      setIsLoading(false)
       const userData = await response.json();
       console.log("Usuário Logado: ", userData);
       setUser(userData)
       router.push("/(tabs)")
     } catch (error: any) {
-      console.error("Erro ao fazer login: ", error.message);
+      Alert.alert("Erro ao fazer login: ",error.message)
+      console.error("Erro ao fazer login: ",error.message);
       throw error;
+      
     }
+    setIsLoading(false)
   }
 
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size={"large"} color={"#0cc0df"} />
+        <StatusBar backgroundColor="transparent" translucent />
+        <ActivityIndicator size={50} color={"#0cc0df"} />
       </View>
     );
   }
@@ -138,10 +143,11 @@ export default function Index() {
           borderColor="#0cc0df"
           iconLibName="Feather"
           icon="arrow-right-circle"
-          onPress={() => SignIn(email, password)}
+          onPress={() => {setIsLoading(true), SignIn(email, password)}}
           height={50}
           width={"80%"}
           justify="space-between"
+          isLoading={isLoading}
         />
 
         <Button

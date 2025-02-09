@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, View, Text, StyleSheet, ViewStyle } from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, ActivityIndicator } from "react-native";
 
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
 
@@ -12,6 +12,7 @@ interface ButtonProps {
   justify?: string,
   iconLibName?: "Feather" | "FontAwesome5";
   icon?: string;
+  isLoading?: boolean;
   onPress?: () => void;
 }
 
@@ -30,6 +31,7 @@ const Button: React.FC<ButtonProps> = ({
   iconLibName,
   icon,
   onPress,
+  isLoading = false
 }) => {
   const IconComponent = iconLibName ? iconLibraries[iconLibName] : null;
 
@@ -58,9 +60,16 @@ const Button: React.FC<ButtonProps> = ({
           {name}
         </Text>
 
-        {icon && iconLibName && IconComponent && (
-          <IconComponent style={s.icon} name={icon} size={24} color="black" />
-        )}
+        {isLoading ?
+          <ActivityIndicator size={'small'} color={'blue'}/>
+         : (
+          icon && iconLibName && IconComponent && (
+            <IconComponent style={s.icon} name={icon} size={24} color="black" />
+          )
+         )
+         }
+
+        
         
 
     </TouchableOpacity>
