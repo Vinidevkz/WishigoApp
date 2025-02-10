@@ -5,7 +5,8 @@ import {
   SafeAreaView,
   StatusBar,
   FlatList,
-  Pressable
+  Pressable,
+  TouchableOpacity
 } from "react-native";
 import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,7 +16,7 @@ import { useRef } from "react";
 
 //styles
 import { s } from "../../src/utils/styles/styles";
-import { Octicons } from "@expo/vector-icons";
+import { Octicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 //components
 import Navbar from "../../src/components/navbar";
@@ -103,11 +104,11 @@ export default function HomePage() {
 
     //open bottomsheet
     const openBottomSheet = () => {
-      console.log("Abrindo BottomSheet..."); // ✅ Depuração
+      console.log("Abrindo BottomSheet...");
       if (BottomSheetRef.current) {
         console.log("abriu")
         console.log("BottomSheetRef atual:", BottomSheetRef.current);
-        BottomSheetRef.current.expand();
+        BottomSheetRef.current.snapToIndex(-1);
       } else {
         console.log("BottomSheetRef está null");
       }
@@ -268,8 +269,20 @@ export default function HomePage() {
           </View>
         </ScrollView>
 
-        <CustomBottomSheet ref={BottomSheetRef} />
+        <CustomBottomSheet/>
+
+
+        <View style={{zIndex: 1, position: 'absolute', right: 10, bottom: 20, flexDirection: 'row', alignItems: 'center', gap: 10}}>
+          <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', width: 45, height: 45, borderRadius: 50, backgroundColor: '#5cd3ff' }}>
+          <MaterialCommunityIcons name="star-four-points-outline" size={25} color="#f4f4f4" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openBottomSheet} style={{ alignItems: 'center', justifyContent: 'center', width: 60, height: 60, borderRadius: 50, backgroundColor: '#fff' }}>
+            <Octicons name="pencil" size={30} color="#5cd3ff" />
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
+
+      
     </GestureHandlerRootView>
   );
 }

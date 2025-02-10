@@ -16,7 +16,7 @@ import {
 } from "@expo-google-fonts/poppins";
 
 //hooks
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 //styles
 import { s } from "../src/utils/styles/styles";
@@ -28,6 +28,19 @@ import InputText from "../src/components/inputText";
 
 //APIs
 import Routes from "../src/services/api";
+
+//Async Storage
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const checkLoginStatus = async () => {
+  try {
+    const userId = await AsyncStorage.getItem('@user_id')
+    return userId !== null
+  } catch (error) {
+      console.log('Erro ao verificar status de login.', error)
+      return false
+  }
+}
 
 //context
 import { useUser } from "../src/contexts/context";
@@ -41,6 +54,8 @@ export default function Index() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false)
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [ email, setEmail ] = useState(String);
   const [ password, setPassword ] = useState(String);
@@ -67,12 +82,15 @@ export default function Index() {
           errorData.message ||
             "Erro ao fazer Login, Verifique seus dados e tente novamente."
         );
+        setIsLoading(false)
       }
-      setIsLoading(false)
       const userData = await response.json();
       console.log("Usuário Logado: ", userData);
       setUser(userData)
+      //save login with user id
+      await AsyncStorage.setItem('@user_id', userData._id.toString())
       router.push("/(tabs)")
+      setIsLoading(false)
     } catch (error: any) {
       Alert.alert("Erro ao fazer login: ",error.message)
       console.error("Erro ao fazer login: ",error.message);
@@ -81,6 +99,22 @@ export default function Index() {
     }
     setIsLoading(false)
   }
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const userId = await AsyncStorage.getItem('@user_id');
+      if (userId) {
+        setIsLoggedIn(true);
+        router.push("/(tabs)"); 
+      } else {
+        setIsLoggedIn(false);
+      }
+    };
+    
+    checkLoginStatus();
+  }, [router]);
+
+
 
   if (!fontsLoaded) {
     return (
