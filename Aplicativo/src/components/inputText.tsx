@@ -16,6 +16,11 @@ import {
 
 interface InputProps {
   placeholder: string;
+  backgroundColor?: string;
+  fontSize?: number;
+  multiline?: boolean
+  alignVertical?: "top" | "center" | "bottom";
+  maxLen?: number,
   iconLibName?: "Feather" | "FontAwesome5";
   icon?: string;
   password?: boolean;
@@ -35,6 +40,11 @@ const InputText: React.FC<InputProps> = ({
   iconLibName,
   icon,
   placeholder,
+  backgroundColor,
+  multiline,
+  alignVertical,
+  maxLen,
+  fontSize,
   password = false,
   iconVisible = "eye-outline",
   iconLibVisible,
@@ -48,14 +58,17 @@ const InputText: React.FC<InputProps> = ({
   const [isVisible, setIsVisible] = useState(false);
 
   return (
-    <View style={s.content}>
+    <View style={[s.content, {backgroundColor: backgroundColor}]}>
       {IconComponent && icon && (
         <IconComponent name={icon} size={24} color={"#1b1b1b"} />
       )}
 
       <TextInput
         secureTextEntry={password && !isVisible}
-        style={s.input}
+        style={[s.input, {fontSize: fontSize}]}
+        multiline={multiline}
+        textAlignVertical={alignVertical}
+        maxLength={maxLen}
         placeholder={placeholder}
         onChangeText={onChangeText}
       />
@@ -82,12 +95,11 @@ const s = StyleSheet.create({
   content: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#d9d9d9",
     borderRadius: 20,
     paddingHorizontal: 15,
+    paddingVertical: 5,
     gap: 5,
-    width: "80%",
-    height: 50,
+    width: "100%",
   },
 });
 

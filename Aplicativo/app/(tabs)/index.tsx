@@ -5,14 +5,13 @@ import {
   SafeAreaView,
   StatusBar,
   FlatList,
-  Pressable,
   TouchableOpacity
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Checkbox } from "react-native-paper";
 
-import { useRef } from "react";
+import { useRouter } from "expo-router";
 
 //styles
 import { s } from "../../src/utils/styles/styles";
@@ -21,13 +20,10 @@ import { Octicons, MaterialCommunityIcons } from "@expo/vector-icons";
 //components
 import Navbar from "../../src/components/navbar";
 import Button from "../../src/components/button";
-
-import { GestureHandlerRootView } from "react-native-gesture-handler"
-import BottomSheet from "@gorhom/bottom-sheet";
-import CustomBottomSheet from "../../src/components/bottomSheet";
+import ModalComponent from "../../src/components/modal";
 
 //context
-import { useUser } from "../../src/contexts/context";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tasks = [
   {
@@ -97,31 +93,41 @@ const todayRoutine = [
 
 export default function HomePage() {
 
-  const BottomSheetRef = useRef<BottomSheet>(null)
-
   const [checked, setChecked] = useState(false);
-  const {user} = useUser()
+  const [userData, setUserData] = useState<{name?: string } | null>(null)
 
-    //open bottomsheet
-    const openBottomSheet = () => {
-      console.log("Abrindo BottomSheet...");
-      if (BottomSheetRef.current) {
-        console.log("abriu")
-        console.log("BottomSheetRef atual:", BottomSheetRef.current);
-        BottomSheetRef.current.snapToIndex(-1);
-      } else {
-        console.log("BottomSheetRef está null");
+  const [modalVisible, setModalVisible] = useState(false)
+  const [modalOption, setModalOption] = useState("")
+
+  const router = useRouter()
+  
+
+  useEffect(() => {
+    const getUserData = async () => {
+      try {
+        const userString = await AsyncStorage.getItem('@user')
+        const user = userString ? JSON.parse(userString): null;
+        setUserData(user)
+      } catch (error) {
+        console.log('Erro ao pegar os dados do usuário do AsyncStorage', error)
       }
-    };
+    }
+
+    getUserData()
+  }, [])
+
+  const openModal = () => {
+    
+  }
 
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
+
       <SafeAreaView style={{ flex: 1 }}>
         <Navbar
           icon1="menu"
           iconLibName1="Entypo"
           title="Seja Bem-Vindo(a), "
-          userName={user?.name}
+          userName={userData?.name || "Visitante" }
         />
         <ScrollView
           style={{
@@ -224,10 +230,6 @@ export default function HomePage() {
             />
           </View>
 
-          <Pressable onPress={openBottomSheet}>
-            <Text>Bottomsheet</Text>
-          </Pressable>
-
           <View style={[s.container, { gap: 0 }]}>
             <View style={s.titleBox}>
               <Text style={s.title}>Rotina Diária</Text>
@@ -267,22 +269,19 @@ export default function HomePage() {
               </View>
             </View>
           </View>
+
+          <ModalComponent isVisible={modalVisible} onClose={() => setModalVisible(false)} optionValue={modalOption}/>
         </ScrollView>
 
-        <CustomBottomSheet/>
-
-
         <View style={{zIndex: 1, position: 'absolute', right: 10, bottom: 20, flexDirection: 'row', alignItems: 'center', gap: 10}}>
-          <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', width: 45, height: 45, borderRadius: 50, backgroundColor: '#5cd3ff' }}>
+          <TouchableOpacity onPress={() => {setModalOption("IA"), setModalVisible(true)}} style={{ alignItems: 'center', justifyContent: 'center', width: 45, height: 45, borderRadius: 50, backgroundColor: '#5cd3ff', elevation: 3 }}>
           <MaterialCommunityIcons name="star-four-points-outline" size={25} color="#f4f4f4" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={openBottomSheet} style={{ alignItems: 'center', justifyContent: 'center', width: 60, height: 60, borderRadius: 50, backgroundColor: '#fff' }}>
+          <TouchableOpacity onPress={() => {setModalOption("NewTask"), setModalVisible(true)}} style={{ alignItems: 'center', justifyContent: 'center', width: 60, height: 60, borderRadius: 50, backgroundColor: '#fff', elevation: 5 }}>
             <Octicons name="pencil" size={30} color="#5cd3ff" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
 
-      
-    </GestureHandlerRootView>
   );
 }

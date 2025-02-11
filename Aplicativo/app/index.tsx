@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  Dimensions,
   ActivityIndicator,
   Image,
   StatusBar,
@@ -34,7 +33,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const checkLoginStatus = async () => {
   try {
-    const userId = await AsyncStorage.getItem('@user_id')
+    const userId = await AsyncStorage.getItem('@user')
     return userId !== null
   } catch (error) {
       console.log('Erro ao verificar status de login.', error)
@@ -82,13 +81,14 @@ export default function Index() {
           errorData.message ||
             "Erro ao fazer Login, Verifique seus dados e tente novamente."
         );
-        setIsLoading(false)
+        
       }
       const userData = await response.json();
       console.log("Usuário Logado: ", userData);
       setUser(userData)
       //save login with user id
-      await AsyncStorage.setItem('@user_id', userData._id.toString())
+      await AsyncStorage.setItem('@user', JSON.stringify(userData))
+      //console.log(AsyncStorage.getItem('@user'))
       router.push("/(tabs)")
       setIsLoading(false)
     } catch (error: any) {
@@ -143,9 +143,10 @@ export default function Index() {
         </Text>
       </View>
 
-      <View style={s.container}>
+      <View style={[s.container, {width: '80%'}]}>
       <InputText
       placeholder="Email"
+      backgroundColor="#d9d9d9"
       iconLibName="Feather"
       icon="mail"
       onChangeText={(text: any) => setEmail(text)}
@@ -154,6 +155,7 @@ export default function Index() {
         <InputText
           password={true}
           placeholder="Senha"
+          backgroundColor="#d9d9d9"
           iconLibName="Feather"
           icon="unlock"
           iconLibVisible="MaterialCommunityIcons"

@@ -2,8 +2,6 @@ import { Octicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { View } from "react-native";
 
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-
 export default function TabLayout() {
   const fontSize: number = 15;
   const fontFamily: string = "Poppins_500Medium";
