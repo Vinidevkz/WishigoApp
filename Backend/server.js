@@ -7,6 +7,7 @@ const app = express()
 const port = process.env.PORT || 5000
 
 const userRoutes = require('./routes/userRoutes')
+const taskRoutes = require('./routes/taskRoutes')
 
 //middleware
 app.use(cors())
@@ -26,6 +27,7 @@ db.once('open', () => {
 
 //routes
 app.use('/user', userRoutes)
+app.use('/tasks', taskRoutes)
 
 //start server
 app.listen(port, () => {
