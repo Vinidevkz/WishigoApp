@@ -18,7 +18,7 @@ export default function ModalComponent({isVisible, onClose, optionValue}: ModalP
     return (
         <Modal style={mS.modal} isVisible={isVisible} onBackdropPress={onClose} onSwipeComplete={onClose} animationIn={"fadeInDown"} animationOut={'fadeOutUp'}>
             <View style={mS.modalContent}>
-                <View style={[s.container, {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20}]}>
+                <View style={[s.container, {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', }]}>
                     <Text style={[s.title, {fontSize: 25}]}>
                         {optionValue === "NewTask" ? "Criar Nova Tarefa" : "Pergunte ao Wish"}
                     </Text>
@@ -28,14 +28,21 @@ export default function ModalComponent({isVisible, onClose, optionValue}: ModalP
                     </TouchableOpacity>
                 </View>
 
-                <View style={[ {width: '100%', alignItems: 'flex-start'}]}>
+                <View style={[ {width: '100%', alignItems: 'center',}]}>
                     <InputText placeholder='Insira um título' fontSize={30} />
 
                     <View style={{maxHeight: 200}}>
                     <InputText placeholder='Escreva mais sobre a tarefa...' fontSize={18} multiline={true} alignVertical="top" maxLen={300} />
                     </View>
 
-                    <Text style={[s.text, {alignSelf: 'flex-start', paddingHorizontal: 20, color: '#b8b8b8'}]}>Limite: 300</Text>
+                    <Text style={[s.text, {alignSelf: 'flex-start', color: '#b8b8b8'}]}>Limite: 300</Text>
+                </View>
+
+                <View style={[ {width: '100%', alignItems: 'flex-start', }]}>
+                    <Text style={s.subtitle}>Obejtivos:</Text>
+                    <View style={mS.taskCont}>
+                        <InputText placeholder='Nome da tarefa'/>
+                    </View>
                 </View>
             </View>
         </Modal>
@@ -47,12 +54,18 @@ const mS = StyleSheet.create({
         margin: 15,
         alignItems: 'center',
         justifyContent: 'flex-start',
+        
     },
 
     modalContent: {
         flex: 1,
         backgroundColor: '#fff',
         borderRadius: 20,
+        paddingHorizontal: 20
+    },
+
+    taskCont: {
+
     }
 })
 

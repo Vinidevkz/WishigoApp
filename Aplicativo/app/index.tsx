@@ -85,9 +85,9 @@ export default function Index() {
       }
       const userData = await response.json();
       console.log("Usuário Logado: ", userData);
-      setUser(userData)
       //save login with user id
       await AsyncStorage.setItem('@user', JSON.stringify(userData))
+      setUser(userData)
       //console.log(AsyncStorage.getItem('@user'))
       router.push("/(tabs)")
       setIsLoading(false)
@@ -149,6 +149,7 @@ export default function Index() {
       backgroundColor="#d9d9d9"
       iconLibName="Feather"
       icon="mail"
+      paddingHorizontal={15}
       onChangeText={(text: any) => setEmail(text)}
       />
 
@@ -158,6 +159,7 @@ export default function Index() {
           backgroundColor="#d9d9d9"
           iconLibName="Feather"
           icon="unlock"
+          paddingHorizontal={20}
           iconLibVisible="MaterialCommunityIcons"
           onChangeText={(text: any) => setPassword(text)}
         />

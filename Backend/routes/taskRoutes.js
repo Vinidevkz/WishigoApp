@@ -3,6 +3,8 @@ const Task = require('../models/task')
 
 const router = express.Router()
 
+const authMiddleware = require('../auths/authMiddleware')
+
 //Task Routes
     //Create Task
     router.post('/createTask', async (req, res) => {
@@ -17,9 +19,9 @@ const router = express.Router()
     })
 
     //Read Tasks
-    router.get('/readTasks/{userId}', async (req, res) => {
+    router.get('/readTask', authMiddleware, async (req, res) => {
         try {
-            const {userId} = req.params
+            const userId = req.user.id
             const tasks = await Task.find({userId})
             
             if(tasks.lenght === 0) {
@@ -37,10 +39,10 @@ const router = express.Router()
         try{
             const {_id} = req.params
             const {userId ,title, description, tasks} = req.body
-
             const updatedTask = await Task.findByIdAndUpdate(_id, {title, description, tasks})
+            res.status(200).json(updatedTask)
         }catch(error){
-
+            res.status(500).json({error: 'Erro aao atualizar a terefa.'})
         }
     })
 

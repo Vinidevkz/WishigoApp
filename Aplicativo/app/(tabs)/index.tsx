@@ -11,8 +11,6 @@ import { useState, useEffect } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Checkbox } from "react-native-paper";
 
-import { useRouter } from "expo-router";
-
 //styles
 import { s } from "../../src/utils/styles/styles";
 import { Octicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -24,7 +22,6 @@ import ModalComponent from "../../src/components/modal";
 
 //context
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const Tasks = [
   {
     id: 1,
@@ -46,7 +43,6 @@ const Tasks = [
     endDate: "05/02/2025",
   },
 ];
-
 const NextDates = [
   {
     id: 1,
@@ -66,7 +62,6 @@ const NextDates = [
     time: "13:20",
   },
 ];
-
 const todayRoutine = [
   {
     id: 1,
@@ -91,22 +86,31 @@ const todayRoutine = [
   },
 ];
 
+//types
+type User = {
+  _id: string,
+  name: string,
+}
+
+type userData = {
+  token: string,
+  user: User,
+}
+
 export default function HomePage() {
 
   const [checked, setChecked] = useState(false);
-  const [userData, setUserData] = useState<{name?: string } | null>(null)
+  const [userData, setUserData] = useState<userData | null>(null)
 
   const [modalVisible, setModalVisible] = useState(false)
   const [modalOption, setModalOption] = useState("")
-
-  const router = useRouter()
-  
 
   useEffect(() => {
     const getUserData = async () => {
       try {
         const userString = await AsyncStorage.getItem('@user')
-        const user = userString ? JSON.parse(userString): null;
+        const user = JSON.parse(userString || '{}');
+        console.log(userData)
         setUserData(user)
       } catch (error) {
         console.log('Erro ao pegar os dados do usuário do AsyncStorage', error)
@@ -116,10 +120,6 @@ export default function HomePage() {
     getUserData()
   }, [])
 
-  const openModal = () => {
-    
-  }
-
   return (
 
       <SafeAreaView style={{ flex: 1 }}>
@@ -127,7 +127,7 @@ export default function HomePage() {
           icon1="menu"
           iconLibName1="Entypo"
           title="Seja Bem-Vindo(a), "
-          userName={userData?.name || "Visitante" }
+          userName={userData?.user ? userData.user.name : "Carregando" }
         />
         <ScrollView
           style={{

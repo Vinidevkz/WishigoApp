@@ -1,8 +1,11 @@
 const express = require('express');
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt');
+
 
 //models
 const User = require('../models/user')
-const Task = require('../models/task')
+
 
 const router = express.Router()
 
@@ -11,7 +14,10 @@ const router = express.Router()
     router.post('/signon', async (req, res) => {
         try{
             const {name, email, password, age} = req.body
-            const newUser = new User({name, email, password, age})
+
+            const hashedPassword = await bcrypt.hash(password, 10)
+
+            const newUser = new User({name, email, password: hashedPassword, age})
             await newUser.save()
             res.status(201).json(newUser)
         }catch(error){
@@ -23,21 +29,29 @@ const router = express.Router()
     router.post('/signin', async (req, res) => {
         try {
             const { email, password } = req.body;
-
             const user = await User.findOne({ email });
 
             if (!user) {
                 return res.status(404).json({ message: "Usuário não encontrado. Verifique suas informações." });
             }
 
-            if(user.password !== password) {
+            const isPasswordValid = await bcrypt.compare(password, user.password)
+            if(!isPasswordValid) {
                 return res.status(401).json({ message: "Senha incorreta. Verifique suas informações e tente novamente."})
             }
 
-            res.status(200).json(user);
+            const token = jwt.sign(
+                {id: user._id, email: user.email},
+                process.env.JWT_SECRET,
+                {expiresIn: '24h'}
+            )
+
+            res.status(200).json({user, token});
         } catch (error) {
-            res.status(500).json({ error: 'Erro no servidor. Aguarde alguns minutos e tente novamente.' });
+            console.error("Erro no login:", error); // Agora mostra no terminal o erro real
+            res.status(500).json({ error: error.message }); // Retorna o erro real para o Postman
         }
+        
     });
 
 
