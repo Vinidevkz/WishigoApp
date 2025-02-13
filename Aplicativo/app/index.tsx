@@ -150,6 +150,7 @@ export default function Index() {
       iconLibName="Feather"
       icon="mail"
       paddingHorizontal={15}
+      paddingVertical={5}
       onChangeText={(text: any) => setEmail(text)}
       />
 
@@ -160,6 +161,7 @@ export default function Index() {
           iconLibName="Feather"
           icon="unlock"
           paddingHorizontal={20}
+          paddingVertical={5}
           iconLibVisible="MaterialCommunityIcons"
           onChangeText={(text: any) => setPassword(text)}
         />
