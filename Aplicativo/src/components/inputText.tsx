@@ -16,6 +16,7 @@ import {
 
 interface InputProps {
   placeholder: string;
+  value?: string;
   backgroundColor?: string;
   fontSize?: number;
   multiline?: boolean
@@ -41,6 +42,7 @@ const InputText: React.FC<InputProps> = ({
   iconLibName,
   icon,
   placeholder,
+  value,
   backgroundColor,
   multiline,
   alignVertical,
@@ -71,6 +73,7 @@ const InputText: React.FC<InputProps> = ({
         multiline={multiline}
         textAlignVertical={alignVertical}
         maxLength={maxLen}
+        value={value}
         placeholder={placeholder}
         onChangeText={onChangeText}
       />

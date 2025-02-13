@@ -9,8 +9,8 @@ const authMiddleware = require('../auths/authMiddleware')
     //Create Task
     router.post('/createTask', async (req, res) => {
         try {
-            const {userId, title, description, tasks} = req.body
-            const newTask = new Task({userId, title, description, tasks})
+            const {userId, title, description, priority, tasks} = req.body
+            const newTask = new Task({userId, title, description, priority, tasks})
             await newTask.save()
             res.status(201).json(newTask)
         } catch (error) {
