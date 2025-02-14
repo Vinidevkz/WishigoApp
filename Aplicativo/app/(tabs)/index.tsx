@@ -110,7 +110,7 @@ export default function HomePage() {
       try {
         const userString = await AsyncStorage.getItem('@user')
         const user = JSON.parse(userString || '{}');
-        console.log(userData)
+        console.log('Dados do usuario: ',userData)
         setUserData(user)
       } catch (error) {
         console.log('Erro ao pegar os dados do usuário do AsyncStorage', error)
@@ -123,15 +123,15 @@ export default function HomePage() {
   return (
 
       <SafeAreaView style={{ flex: 1 }}>
+        <StatusBar backgroundColor={'#f4f4f4'}/>
         <Navbar
-          icon1="menu"
-          iconLibName1="Entypo"
-          title="Seja Bem-Vindo(a), "
+
+          title="Seja Bem-Vindo(a) "
           userName={userData?.user ? userData.user.name : "Carregando" }
         />
         <ScrollView
           style={{
-            marginTop: (StatusBar.currentHeight || 0) + 80
+            paddingTop: (StatusBar.currentHeight || 0) + 45,
           }}
           showsVerticalScrollIndicator={false}
         >
@@ -230,7 +230,7 @@ export default function HomePage() {
             />
           </View>
 
-          <View style={[s.container, { gap: 0 }]}>
+          <View style={[s.container, { gap: 0, marginBottom:150 }]}>
             <View style={s.titleBox}>
               <Text style={s.title}>Rotina Diária</Text>
             </View>

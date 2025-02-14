@@ -9,6 +9,8 @@ import {
 import Modal from "react-native-modal";
 import { useState, useEffect } from "react";
 
+import Routes from "../services/api";
+
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 
 import { s } from "../utils/styles/styles";
@@ -26,13 +28,12 @@ interface Task {
   title: string;
   description: string;
   priority: string;
-  tasks: [
-    {
+  tasks: {
       taskTitle: string;
       taskDesc: string;
       isCompleted: boolean;
-    }
-  ];
+    }[]
+  ;
 }
 
 export default function ModalComponent({
@@ -40,14 +41,14 @@ export default function ModalComponent({
   onClose,
   optionValue,
 }: ModalProps) {
-  const [tasks, setTasks] = useState<
-    {
-      _id: string;
-      taskTitle: string;
-      taskDesc: string;
-      isCompleted: boolean;
-    }[]
-  >([]);
+  const [tasks, setTasks] = useState<Task>({
+    title: "",
+    description: "",
+    priority: "",
+    tasks: [],
+  });
+
+  
 
   useEffect(() => {
     const TasksArray = [
@@ -62,36 +63,41 @@ export default function ModalComponent({
     setTasks(TasksArray);
   }, []);
 
-  const addTasks = () => {
-    const newTask = {
-      _id: (tasks.length + 1).toString(),
-      taskTitle: "",
-      taskDesc: "",
-      isCompleted: false,
+    const addTasks = () => {
+      const newTask = {
+        _id: (tasks.length + 1).toString(),
+        taskTitle: "",
+        taskDesc: "",
+        isCompleted: false,
+      };
+
+      setTasks([...tasks, newTask]);
     };
 
-    setTasks([...tasks, newTask]);
-  };
+    const deleteTasks = (id: string) => {
+      const updatedTasks = tasks.filter((task) => task._id !== id);
 
-  const deleteTasks = (id: string) => {
-    const updatedTasks = tasks.filter((task) => task._id !== id);
+      setTasks(updatedTasks);
+    };
 
-    setTasks(updatedTasks);
-  };
+    const updateTaskTitle = (id: string, text: string) => {
+      const updatedTasks = tasks.map((task) =>
+        task._id === id ? { ...task, taskTitle: text } : task
+      );
+      setTasks(updatedTasks);
+    };
 
-  const updateTaskTitle = (id: string, text: string) => {
-    const updatedTasks = tasks.map((task) =>
-      task._id === id ? { ...task, taskTitle: text } : task
-    );
-    setTasks(updatedTasks);
-  };
+    const updatedTaskDescription = (id: string, text: string) => {
+      const updatedTasks = tasks.map((task) =>
+        task._id === id ? { ...task, taskDesc: text } : task
+      );
+      setTasks(updatedTasks);
+    };
 
-  const updatedTaskDescription = (id: string, text: string) => {
-    const updatedTasks = tasks.map((task) =>
-      task._id === id ? { ...task, taskDesc: text } : task
-    );
-    setTasks(updatedTasks);
-  };
+  async function createTask<Task>() {
+    const url = Routes.CreateTask
+    const requestBody = JSON.stringify(tasks)
+  }
 
   return (
     <Modal
@@ -136,6 +142,7 @@ export default function ModalComponent({
                   multiline={true}
                   alignVertical="top"
                   maxLen={300}
+                  value={tasks.title}
                 />
               </View>
 
@@ -149,7 +156,7 @@ export default function ModalComponent({
               </Text>
             </View>
 
-            <View style={[{ width: "100%", alignItems: "flex-start" }]}>
+            <View style={[{ height: '55%' }]}>
               <View
                 style={{
                   width: "100%",
@@ -173,53 +180,66 @@ export default function ModalComponent({
                   </TouchableOpacity>
                 </View>
               </View>
-              <FlatList
-                data={tasks}
-                style={mS.flatlist}
-                keyExtractor={(item) => item._id}
-                renderItem={({ item }) => {
-                  return (
-                    <View style={[mS.taskCont]}>
-                      <View style={{ width: "80%" }}>
-                        <InputText
-                          placeholder="Nome da tarefa"
-                          fontSize={18}
-                          value={item.taskTitle}
-                          onChangeText={(text) =>
-                            updateTaskTitle(item._id, text)
-                          }
-                        />
-                        <InputText
-                          placeholder="Escreva mais sobre a tarefa..."
-                          fontSize={16}
-                          multiline={true}
-                          alignVertical="top"
-                          maxLen={200}
-                          value={item.taskDesc}
-                          onChangeText={(text) =>
-                            updatedTaskDescription(item._id, text)
-                          }
-                        />
-                      </View>
-                      <TouchableOpacity style={{zIndex: 1, position: 'absolute', top: 0, bottom: 0, right: 2}} onPress={() => deleteTasks(item._id)}>
-                          <FontAwesome
-                            name="minus-circle"
-                            size={30}
-                            color="black"
-                          />
-                        </TouchableOpacity>
-                      <View style={{ alignItems: "center", gap: 20 }}>
 
-                        <Button
-                          name="Alto"
-                          backgroundColor="#f4f4f4"
-                          borderColor="#f4f4f4"
-                        />
+                <FlatList
+                  data={tasks}
+                  keyExtractor={(item) => item._id}
+                  horizontal={true}
+                  style={{ paddingRight: 15}}
+                  showsHorizontalScrollIndicator={false}
+                  renderItem={({ item }) => {
+                    return (
+                      <View style={[mS.taskCont]}>
+                        <View style={{ }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                            <View style={{width: '80%'}}>
+                            <InputText
+                              placeholder="Nome da tarefa"
+                              fontSize={18}
+                              value={item.taskTitle}
+                              onChangeText={(text) =>
+                                updateTaskTitle(item._id, text)
+                              }
+                            />
+                            </View>
+                            <TouchableOpacity onPress={() => deleteTasks(item._id)}>
+                              <FontAwesome
+                                name="minus-circle"
+                                size={30}
+                                color="black"
+                              />
+                            </TouchableOpacity>
+                          </View>
+
+
+                          <InputText
+                            placeholder="Escreva mais sobre a tarefa..."
+                            fontSize={16}
+                            multiline={true}
+                            alignVertical="top"
+                            maxLen={100}
+                            value={item.taskDesc}
+                            onChangeText={(text) =>
+                              updatedTaskDescription(item._id, text)
+                            }
+                          />
+                        </View>
+
+                        <View style={{ alignItems: "center", gap: 20 }}>
+
+                          <Button
+                            name="Alto"
+                            backgroundColor="#f4f4f4"
+                            borderColor="#f4f4f4"
+                          />
+                        </View>
                       </View>
-                    </View>
-                  );
-                }}
-              />
+                    );
+                  }}
+                />
+
+                
+
             </View>
           </View>
         ) : (
@@ -228,13 +248,14 @@ export default function ModalComponent({
           </View>
         )}
 
-        {optionValue === "NewTask" ? (
+
+      </View>
+      {optionValue === "NewTask" ? (
           <TouchableOpacity style={mS.sendButton}>
             <Text style={[s.subtitle, { color: "#f4f4f4" }]}>Criar Tarefa</Text>
             <MaterialIcons name="verified" size={25} color="#f4f4f4" />
           </TouchableOpacity>
         ) : null}
-      </View>
     </Modal>
   );
 }
@@ -249,36 +270,38 @@ const mS = StyleSheet.create({
   modalContent: {
     flex: 1,
     backgroundColor: "#fff",
-    borderRadius: 20,
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
     alignItems: "center",
     paddingHorizontal: 20,
   },
 
   taskCont: {
-    flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     borderWidth: 2,
     borderColor: "#c4c4c4",
     borderRadius: 10,
-    padding: 5,
-    marginVertical: 5
+    padding: 15,
+    marginRight: 15,
+    width: 250,
+
   },
 
   sendButton: {
-    zIndex: 1,
-    position: "absolute",
-    bottom: 20,
     backgroundColor: "#0cc0df",
-    borderRadius: 40,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
     width: "100%",
+    height: 80,
     padding: 10,
     flexDirection: "row",
+    alignSelf: 'auto',
     alignItems: "center",
     justifyContent: "space-around",
   },
 
   flatlist: {
-    
+    width: '100%',
   }
 });

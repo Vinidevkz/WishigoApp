@@ -2,7 +2,6 @@
 const jwt = require('jsonwebtoken')
 
 const authMiddleware = (req, res, next) => {
-
     //separa o header pegando apenas o token
     const token = req.header.authorization?.split(' ')[1]
 
@@ -12,13 +11,13 @@ const authMiddleware = (req, res, next) => {
     }
 
     try {
-        //converte o id do usuario recebido em um token
+    //converte o id do usuario recebido em um token
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        //e devolve ele
+    //e devolve ele
         req.user = decoded
         next()
     } catch (error) {
-        //se o token não for válido, retorna um erro
+    //se o token não for válido, retorna um erro
         return res.status(401).json({error: 'Token inválido.'})
     }
 }

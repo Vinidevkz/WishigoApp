@@ -2,7 +2,6 @@ const express = require('express');
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 
-
 //models
 const User = require('../models/user')
 
@@ -48,8 +47,8 @@ const router = express.Router()
 
             res.status(200).json({user, token});
         } catch (error) {
-            console.error("Erro no login:", error); // Agora mostra no terminal o erro real
-            res.status(500).json({ error: error.message }); // Retorna o erro real para o Postman
+            console.error("Erro no login:", error); 
+            res.status(500).json({ error: error.message });
         }
         
     });

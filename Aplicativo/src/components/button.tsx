@@ -3,6 +3,8 @@ import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, ActivityIndicator 
 
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
 
+import Colors from "../utils/styles/colors";
+
 interface ButtonProps {
   name: string;
   backgroundColor: string;
@@ -61,7 +63,7 @@ const Button: React.FC<ButtonProps> = ({
         </Text>
 
         {isLoading ?
-          <ActivityIndicator size={'small'} color={'blue'}/>
+          <ActivityIndicator size={'small'} color={Colors.defaultBlue}/>
          : (
           icon && iconLibName && IconComponent && (
             <IconComponent style={s.icon} name={icon} size={24} color="black" />
