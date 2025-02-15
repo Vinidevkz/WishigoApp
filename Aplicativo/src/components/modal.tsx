@@ -5,11 +5,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  Alert,
 } from "react-native";
 import Modal from "react-native-modal";
 import { useState, useEffect } from "react";
 
 import Routes from "../services/api";
+
 
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 
@@ -18,6 +20,10 @@ import { s } from "../utils/styles/styles";
 import InputText from "./inputText";
 import Button from "./button";
 
+//Async Storage
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
 interface ModalProps {
   isVisible: boolean;
   optionValue: string;
@@ -25,10 +31,13 @@ interface ModalProps {
 }
 
 interface Task {
+  _id: string,
+  userId: any,
   title: string;
   description: string;
   priority: string;
   tasks: {
+      _id: string,
       taskTitle: string;
       taskDesc: string;
       isCompleted: boolean;
@@ -41,62 +50,72 @@ export default function ModalComponent({
   onClose,
   optionValue,
 }: ModalProps) {
-  const [tasks, setTasks] = useState<Task>({
-    title: "",
-    description: "",
-    priority: "",
-    tasks: [],
-  });
 
   
 
-  useEffect(() => {
-    const TasksArray = [
-      {
-        _id: "1",
-        taskTitle: "",
-        taskDesc: "",
-        isCompleted: false,
-      },
-    ];
+  const [task, setTasks] = useState<Task>({
+    _id: "",
+    userId: "",
+    title: "",
+    description: "",
+    priority: "Alto",
+    tasks: [],
+  });
 
-    setTasks(TasksArray);
-  }, []);
-
-    const addTasks = () => {
-      const newTask = {
-        _id: (tasks.length + 1).toString(),
-        taskTitle: "",
-        taskDesc: "",
-        isCompleted: false,
-      };
-
-      setTasks([...tasks, newTask]);
+  const addSubTasks = () => {
+    const newSubTask = {
+      _id: (task.tasks.length + 1).toString(),
+      taskTitle: "",
+      taskDesc: "",
+      isCompleted: false,
     };
 
-    const deleteTasks = (id: string) => {
-      const updatedTasks = tasks.filter((task) => task._id !== id);
+    setTasks((prevTask) => ({
+      ...prevTask,
+      tasks: [...prevTask.tasks, newSubTask],
+    }));
+  };
 
-      setTasks(updatedTasks);
+    const deleteSubTasks = (id: string) => {
+      const updatedSubTasks = task.tasks.filter((subTask) => subTask._id !== id);
+
+      setTasks((prevTask) => ({...prevTask, tasks: updatedSubTasks}));
     };
 
     const updateTaskTitle = (id: string, text: string) => {
-      const updatedTasks = tasks.map((task) =>
-        task._id === id ? { ...task, taskTitle: text } : task
-      );
-      setTasks(updatedTasks);
+      const updatedSubTasks = task.tasks.map((subTask) => 
+      subTask._id === id ? {...subTask, taskTitle: text} : subTask)
+      setTasks((prevTask) => ({...prevTask, tasks: updatedSubTasks}));
     };
 
     const updatedTaskDescription = (id: string, text: string) => {
-      const updatedTasks = tasks.map((task) =>
-        task._id === id ? { ...task, taskDesc: text } : task
-      );
-      setTasks(updatedTasks);
+      const updatedSubTasks = task.tasks.map((subTask) => 
+        subTask._id === id ? {...subTask, taskDesc: text}: subTask
+      )
+      setTasks((prevTask) => ({...prevTask, tasks: updatedSubTasks}));
     };
 
-  async function createTask<Task>() {
+  const createTask = async () => {
     const url = Routes.CreateTask
-    const requestBody = JSON.stringify(tasks)
+    const requestBody = JSON.stringify(task)
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(task)
+      })
+      if(response.ok){
+        console.log('Tarefa criada com sucesso!')
+        onClose()
+      }else{
+        console.log('Erro ao criar tarefa: ', response.statusText)
+      }
+    } catch (error) {
+      Alert.alert('Erro ao criar tarefa', 'Tente novamente mais tarde.')
+      console.log('Erro ao criar tarefa')
+    }
   }
 
   return (
@@ -133,7 +152,12 @@ export default function ModalComponent({
         {optionValue === "NewTask" ? (
           <View>
             <View style={[{ width: "100%", alignItems: "center" }]}>
-              <InputText placeholder="Insira um título" fontSize={30} />
+              <InputText
+              placeholder="Insira um título"
+              fontSize={30}
+              value={task.title}
+              onChangeText={(text) => setTasks((prevTask) => ({...prevTask, title: text}))}
+              />
 
               <View style={{ maxHeight: 200 }}>
                 <InputText
@@ -142,7 +166,8 @@ export default function ModalComponent({
                   multiline={true}
                   alignVertical="top"
                   maxLen={300}
-                  value={tasks.title}
+                  value={task.description}
+                  onChangeText={(text) => setTasks((prevTask) => ({...prevTask, description: text}))}
                 />
               </View>
 
@@ -175,15 +200,15 @@ export default function ModalComponent({
                     gap: 15,
                   }}
                 >
-                  <TouchableOpacity onPress={addTasks}>
+                  <TouchableOpacity onPress={addSubTasks}>
                     <FontAwesome name="plus-circle" size={35} color="black" />
                   </TouchableOpacity>
                 </View>
               </View>
 
                 <FlatList
-                  data={tasks}
-                  keyExtractor={(item) => item._id}
+                  data={task.tasks}
+                  keyExtractor={(item, index) => index.toString()}
                   horizontal={true}
                   style={{ paddingRight: 15}}
                   showsHorizontalScrollIndicator={false}
@@ -202,7 +227,7 @@ export default function ModalComponent({
                               }
                             />
                             </View>
-                            <TouchableOpacity onPress={() => deleteTasks(item._id)}>
+                            <TouchableOpacity onPress={() => deleteSubTasks(item._id)}>
                               <FontAwesome
                                 name="minus-circle"
                                 size={30}
@@ -225,10 +250,10 @@ export default function ModalComponent({
                           />
                         </View>
 
-                        <View style={{ alignItems: "center", gap: 20 }}>
-
+                        <View style={{ flexDirection: 'row', alignItems: "center", justifyContent: 'space-between', width: '100%' }}>
+                          <Text style={s.text}>Prioridade: </Text>
                           <Button
-                            name="Alto"
+                            name={task.priority}
                             backgroundColor="#f4f4f4"
                             borderColor="#f4f4f4"
                           />
@@ -251,7 +276,7 @@ export default function ModalComponent({
 
       </View>
       {optionValue === "NewTask" ? (
-          <TouchableOpacity style={mS.sendButton}>
+          <TouchableOpacity style={mS.sendButton} onPress={() => createTask()}>
             <Text style={[s.subtitle, { color: "#f4f4f4" }]}>Criar Tarefa</Text>
             <MaterialIcons name="verified" size={25} color="#f4f4f4" />
           </TouchableOpacity>

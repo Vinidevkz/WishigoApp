@@ -3,8 +3,8 @@ import React, {createContext, useContext, useState, ReactNode, Children} from 'r
 //User model to global
 interface User {
   id: string
-  name: string
-  age: number
+  name?: string
+  age?: number
 }
 
 interface UserContextType {

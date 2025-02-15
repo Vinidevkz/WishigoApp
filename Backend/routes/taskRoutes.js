@@ -19,10 +19,10 @@ const authMiddleware = require('../auths/authMiddleware')
     })
 
     //Read Tasks
-    router.get('/readTask', authMiddleware, async (req, res) => {
+    router.get('/readTask', async (req, res) => {
         try {
-            const userId = req.user.id
-            const tasks = await Task.find({userId})
+            const id = req.userId
+            const tasks = await Task.find({id})
             
             if(tasks.lenght === 0) {
                 res.status(404).json({message: 'Nenhuma tarefa encontrada.'})

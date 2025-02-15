@@ -95,9 +95,9 @@ export default function Index() {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const userId = await AsyncStorage.getItem("@user_id");
-      console.log("ID do usuario: ",userId)
-      if (userId) {
+      const user = await AsyncStorage.getItem("@user");
+      setUser(user)
+      if (user) {
         setIsLoggedIn(true);
         router.replace("/(tabs)");
       } else {
