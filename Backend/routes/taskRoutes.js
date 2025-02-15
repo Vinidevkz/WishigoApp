@@ -6,6 +6,17 @@ const router = express.Router()
 const authMiddleware = require('../auths/authMiddleware')
 
 //Task Routes
+
+    //All Tasks
+    router.get('/all', async (req, res) => {
+        try {
+            const allTasks = await Task.find()
+            res.status(200).json(allTasks)
+        } catch (error) {
+            res.status(500).json({message: error.message})
+        }
+    })
+
     //Create Task
     router.post('/createTask', async (req, res) => {
         try {

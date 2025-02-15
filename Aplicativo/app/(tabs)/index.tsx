@@ -121,7 +121,6 @@ export default function HomePage() {
   }, [])
 
   return (
-
       <SafeAreaView style={{ flex: 1 }}>
         <StatusBar backgroundColor={'#f4f4f4'}/>
         <Navbar
