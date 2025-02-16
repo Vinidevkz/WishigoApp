@@ -105,7 +105,7 @@ export const s = StyleSheet.create({
         backgroundColor: '#f4f4f4',
         elevation: 5,
         margin: 10,
-        borderRadius: 20,
+        borderRadius: 10,
         padding: 15,
         gap: 10
     },
@@ -121,5 +121,8 @@ export const s = StyleSheet.create({
         padding: 10,
         width: '100%'
       },
-    
+    image: {
+        width: 150,
+        height: 100
+    },
 })

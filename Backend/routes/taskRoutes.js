@@ -30,7 +30,7 @@ const authMiddleware = require('../auths/authMiddleware')
     })
 
     //Read Tasks
-    router.get('/readTask', async (req, res) => {
+    router.post('/readTask', async (req, res) => {
         try {
             const id = req.userId
             const tasks = await Task.find({id})

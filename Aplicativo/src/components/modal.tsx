@@ -12,7 +12,6 @@ import { useState, useEffect } from "react";
 
 import Routes from "../services/api";
 
-
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 
 import { s } from "../utils/styles/styles";
@@ -23,7 +22,6 @@ import Button from "./button";
 //Async Storage
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
 interface ModalProps {
   isVisible: boolean;
   optionValue: string;
@@ -31,7 +29,6 @@ interface ModalProps {
 }
 
 interface Task {
-  _id: string,
   userId: any,
   title: string;
   description: string;
@@ -51,10 +48,23 @@ export default function ModalComponent({
   optionValue,
 }: ModalProps) {
 
-  
+  useEffect(() => {
+    const getUserId = async () => {
+      const userId = await AsyncStorage.getItem("@user_id")
+
+      if(userId){
+        setTasks(prevState => ({
+          ...prevState, 
+          userId: userId
+        }))
+      }
+    }
+
+    getUserId()
+  }, [])
+
 
   const [task, setTasks] = useState<Task>({
-    _id: "",
     userId: "",
     title: "",
     description: "",
@@ -97,20 +107,34 @@ export default function ModalComponent({
 
   const createTask = async () => {
     const url = Routes.CreateTask
-    const requestBody = JSON.stringify(task)
+    //triando o id das subTasks pois o banco não espera esse valor:
+    const tasksWithoutId = task.tasks.map(({_id, ...rest}) => rest)
+    const taskWithoutId = {...task, tasks: tasksWithoutId}
+    const requestBody = JSON.stringify(taskWithoutId)
+    //
+    console.log(requestBody)
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(task)
+        body: requestBody
       })
       if(response.ok){
-        console.log('Tarefa criada com sucesso!')
+        Alert.alert('Tarefa criada com sucesso!')
         onClose()
       }else{
-        console.log('Erro ao criar tarefa: ', response.statusText)
+        const errorData = await response.json();
+        console.error('Erro ao criar tarefa:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+        });
+  
+        Alert.alert(
+          'Erro ao criar tarefa',
+          `Status: ${response.status}\nMensagem: ${errorData.message || 'Erro desconhecido'}`,)
       }
     } catch (error) {
       Alert.alert('Erro ao criar tarefa', 'Tente novamente mais tarde.')

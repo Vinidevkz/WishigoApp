@@ -5,11 +5,13 @@ import {
   SafeAreaView,
   StatusBar,
   FlatList,
-  TouchableOpacity
+  TouchableOpacity,
+  Image,
+  Alert
 } from "react-native";
 import { useState, useEffect } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { Checkbox } from "react-native-paper";
+import { ActivityIndicator, Checkbox } from "react-native-paper";
 
 //styles
 import { s } from "../../src/utils/styles/styles";
@@ -22,27 +24,9 @@ import ModalComponent from "../../src/components/modal";
 
 //context
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const Tasks = [
-  {
-    id: 1,
-    name: "Estudar Programação",
-    description: "Estudar TypeScript e React Native",
-    level: "Alto",
-    tasksNumber: 5,
-    createdAt: "01/02/2025",
-    endDate: "11/02/2025",
-  },
+import Routes from "../../src/services/api";
+import  Colors  from "../../src/utils/styles/colors";
 
-  {
-    id: 2,
-    name: "Limpar a Casa",
-    description: "Jogar o lixo fora, etc",
-    level: "Média",
-    tasksNumber: 10,
-    createdAt: "05/02/2025",
-    endDate: "05/02/2025",
-  },
-];
 const NextDates = [
   {
     id: 1,
@@ -97,10 +81,27 @@ type userData = {
   user: User,
 }
 
+type Tasks = {
+  _id: string,
+  title: string,
+  description: string,
+  priority: string,
+  tasks: [{
+    _id: string,
+    taskTitle: string,
+    taskDesc: string,
+    isCompleted: boolean
+  }]
+}
+
 export default function HomePage() {
 
   const [checked, setChecked] = useState(false);
   const [userData, setUserData] = useState<userData | null>(null)
+  const [userId, setUserId] = useState()
+  const [isLoading, setIsLoading] = useState<Boolean>(true)
+
+  const  [tasks, setTasks] = useState<Tasks | any>()
 
   const [modalVisible, setModalVisible] = useState(false)
   const [modalOption, setModalOption] = useState("")
@@ -109,9 +110,15 @@ export default function HomePage() {
     const getUserData = async () => {
       try {
         const userString = await AsyncStorage.getItem('@user')
-        const user = JSON.parse(userString || '{}');
+        const userData = JSON.parse(userString || '{}');
         console.log('Dados do usuario: ',userData)
-        setUserData(user)
+        setUserData(userData)
+        setUserId(userData.user._id)
+        console.log(userId)
+
+        if (userData.user._id) {
+          await getTasks(userData.user._id);
+        }
       } catch (error) {
         console.log('Erro ao pegar os dados do usuário do AsyncStorage', error)
       }
@@ -119,6 +126,47 @@ export default function HomePage() {
 
     getUserData()
   }, [])
+
+  async function getTasks(userId: string) {
+    const url = Routes.ReadTask
+    const requestBody = JSON.stringify({userId})
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: requestBody
+      })
+
+      if(!response.ok){
+        const errorJson = await response.json()
+        console.log("Erro ao pegar as tarefas do banco", errorJson)
+      }
+
+      const userTasks = await response.json()
+      setTasks(userTasks)
+      console.log("Tasks do usuário: ", userTasks)
+
+    } catch (error: any) {
+      Alert.alert("Erro ao buscar suas tarefas: ", error.message);
+      console.error("Erro ao buscar tarefas: ", error.message);
+      throw error;
+    }
+
+    setIsLoading(false)
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+
+    return new Intl.DateTimeFormat("pt-br", {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date)
+  }
 
   return (
       <SafeAreaView style={{ flex: 1 }}>
@@ -188,44 +236,66 @@ export default function HomePage() {
             <FlatList
               horizontal={true}
               showsHorizontalScrollIndicator={false}
-              data={Tasks}
-              keyExtractor={(item) => item.id.toString()}
+              data={tasks}
+              keyExtractor={(item) => item._id.toString()}
               renderItem={({ item }) => (
-                <View style={s.card}>
-                  <View style={{ gap: 10, height: 100 }}>
-                    <View>
-                      <Text style={[s.title]} numberOfLines={1}>
-                        {item.name}
-                      </Text>
-                      <Text style={[s.subtitle, { fontSize: 15 }]}>
-                        Criado em: {item.createdAt}
+                <View style={{height: 270}}>
+                  <View style={s.card}>
+                    <View style={{ gap: 10, height: 100 }}>
+                      <View>
+                        <Text style={[s.title]} numberOfLines={1}>
+                          {item.title}
+                        </Text>
+                        <Text style={[s.subtitle, { fontSize: 15 }]}>
+                          Criado em: {formatDate(item.createdAt)}
+                        </Text>
+                      </View>
+                      <Text style={[s.text, { fontSize: 15 }]} numberOfLines={1}>
+                        {item.description}
                       </Text>
                     </View>
-                    <Text style={[s.text, { fontSize: 15 }]} numberOfLines={2}>
-                      {item.description}
-                    </Text>
-                  </View>
 
-                  <Text style={[s.text, {}]}>Prioridade: {item.level}</Text>
+                    
 
-                  <View style={{ gap: 10 }}>
-                    <Text style={[s.subtitle, { fontSize: 18 }]}>
-                      Itens na lista: {item.tasksNumber}
-                    </Text>
-                  </View>
+                    <View style={{ gap: 10 }}>
+                      <Text style={[s.subtitle, { fontSize: 18 }]}>
+                        Itens na lista: {item.tasks.length}
+                      </Text>
+                      <Text style={[s.text, ]}>Prioridade: <Text style={{color: item.priority === "Alto" ? Colors.red : item.priority === "Médio" ? Colors.parcialBlack : Colors.defaultBlue}}>{item.priority}</Text></Text>
+                    </View>
 
-                  <View style={{}}>
-                    <Button
-                      name="Ver Tarefa"
-                      backgroundColor="#fff"
-                      borderColor="#1b1b1b"
-                      height={40}
-                      width="100%"
-                      justify="center"
-                    />
+                    <View style={{}}>
+                      <Button
+                        name="Ver Tarefa"
+                        backgroundColor="#fff"
+                        borderColor="#1b1b1b"
+                        height={40}
+                        width="100%"
+                        justify="center"
+                      />
+                    </View>
                   </View>
                 </View>
               )}
+              ListEmptyComponent={
+                <View style={{ height: 200, width: '100%', alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row'}}>
+
+                  {isLoading === true ? (
+                    <ActivityIndicator size={'small'} color={Colors.defaultBlue}/>
+                   ) : (
+                    <View style={{alignItems: 'center', justifyContent: 'space-between'}}>
+                      <View style={{alignItems: 'center',}}>
+                        <Text style={[s.subtitle, {fontSize: 22}]}>Nenhuma tarefa criada.</Text>
+                        <Text style={[s.text, {fontSize: 16}]}>Dê vida para suas <Text style={{color: Colors.defaultBlue}}>idéias!</Text></Text>
+                      </View>
+                      <Image source={require('../../src/utils/imgs/starboy.png')} style={s.image}/>
+                    </View>
+                   )}
+
+
+
+                </View>
+              }
             />
           </View>
 
